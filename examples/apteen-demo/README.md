@@ -1,33 +1,38 @@
 # APTEEN-style threshold reporting in Cooja (Contiki-NG)
 
-Compile-tested against current Contiki-NG (native target, no errors).
+Compile-tested against current Contiki-NG (native and cooja targets, no warnings).
 
-## 1. Install the project
-Copy this whole folder into your Contiki-NG examples directory:
+## Demo (ready-made simulations)
+Two saved simulations are included: `apteen-sim.csc` (experiment A) and
+`baseline-sim.csc` (experiment B). Both use the same layout: sink (node 1)
+in the middle, 4 sensor clients (nodes 2-5) 30 m away.
 
-    cp -r ~/Downloads/apteen-demo ~/dev/contiki-ng/examples/apteen-demo
-
-(adjust the Downloads path to where the folder actually is)
-
-## 2. Run experiment A: APTEEN-style
 1. `cd ~/dev/contiki-ng/tools/cooja && ./gradlew run`
-2. File -> New simulation (keep defaults, radio medium UDGM) -> Create
-3. Motes -> Add motes -> Create new mote type -> Cooja mote
-   - Browse to `examples/apteen-demo/apteen-server.c` -> Compile -> Create -> add 1 mote
-4. Repeat for `examples/apteen-demo/apteen-client.c` -> add 4 motes
-5. Drag motes in the Network window so every client is within about 40 m of the server
-6. Open Tools -> Mote output (or Log Listener); filter on `STATS`
-7. Start the simulation and let it run about 10 simulated minutes
-   (the RPL network needs 1-2 minutes to form; "Not reachable yet" at the start is normal)
-8. Note the last `STATS` line per client: samples / sent / suppressed / tx_energy_uJ
+2. File -> Open simulation -> `examples/apteen-demo/apteen-sim.csc`
+   (Cooja compiles the motes; you should see 5 nodes)
+3. Press Start. Watch the `STATS` lines in the Log Listener window.
+   Increase speed in Simulation control to finish faster.
+4. After 10 simulated minutes the simulation stops by itself and the
+   Script editor window at the bottom prints a SUMMARY with totals.
+5. Repeat with `baseline-sim.csc` and compare the two summaries.
 
-## 3. Run experiment B: baseline
-Make a new simulation with the same layout, but use `baseline-client.c`
-for the 4 client motes. Run the same duration and note the STATS lines.
+"Not reachable yet" during the first 1-2 minutes is normal (RPL forming).
 
-## 4. Compare
-Same samples, far fewer `sent` and much lower `tx_energy_uJ` in experiment A.
-That is the energy saving from hard threshold + soft threshold + count time.
+Expected result (see RESULTS.md): APTEEN sends about 91% fewer reports and
+uses about 91% less estimated TX energy than the baseline.
+
+To rerun both experiments without the GUI (results go to `results/`):
+
+    cd ~/dev/contiki-ng
+    for s in apteen baseline; do ./tools/cooja/gradlew -q -p tools/cooja run --args="--no-gui --contiki=$PWD --logdir=$PWD/examples/apteen-demo/results/$s $PWD/examples/apteen-demo/$s-sim.csc"; done
+
+## Building a simulation by hand (alternative)
+1. File -> New simulation (radio medium UDGM) -> Create
+2. Motes -> Add motes -> Create new mote type -> Cooja mote ->
+   `apteen-server.c` -> Compile -> Create -> add 1 mote
+3. Same for `apteen-client.c` (or `baseline-client.c`) -> add 4 motes
+4. Place every client within about 40 m of the server, open
+   Tools -> Log Listener, filter on `STATS`, and run about 10 minutes.
 
 ## Parameters (top of apteen-client.c)
 HARD_THRESHOLD 300 (30.0 C), SOFT_THRESHOLD 10 (1.0 C), COUNT_TIME 60 s,
