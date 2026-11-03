@@ -1,0 +1,19 @@
+RUN INFO: NO RUNS EXECUTED. Stopped at step 1 (Cooja does not build headless).
+Simulated length: none. Seed: not applied. .csc differences: not checked (files not found).
+
+A, B, C, D tables: not produced (no runs).
+COMPARISON TABLE: not produced (no runs).
+CHECKS: all NOT EVALUATED (no data). Old-log check NOT EVALUATED (old A/C logs not found).
+
+PROBLEMS:
+1. Cooja build failed (tools/cooja @ fabff3ee, `./gradlew --no-daemon jar`). Exact error:
+   Cannot find a Java installation on your machine (Linux 6.18.44-fc-v230 amd64) matching:
+   {languageVersion=25, vendor=any vendor, implementation=vendor-specific, nativeImageCapable=false}.
+   Some toolchain resolvers had internal failures: foojay (Unable to tunnel through proxy.
+   Proxy returns "HTTP/1.1 403 Forbidden").
+   Installed JDK is OpenJDK 21.0.12; Cooja requires JDK 25 and cannot download it here.
+   (An earlier attempt also failed with HTTP 429 Too Many Requests from repo.maven.apache.org.)
+2. The firmware and .csc paths in the request were literal "<PATH>" placeholders. No A/B/C
+   firmware, .csc files or old logs (no APTEEN/HEED/METRICS/ENERGY/GEN sources) exist in this
+   container or repository.
+3. ./runs/ not created: no raw logs exist.
